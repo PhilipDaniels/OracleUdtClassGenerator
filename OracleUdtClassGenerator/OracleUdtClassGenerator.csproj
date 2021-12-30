@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>10</LangVersion>
+    <DebugType>embedded</DebugType>
+    <EmbedAllSources>true</EmbedAllSources>
+    <Authors>Philip Daniels</Authors>
+    <Company>Philip Daniels</Company>
+    <Copyright>Philip Daniels</Copyright>
+    <Description>Source Code Generator for Oracle UDTs.</Description>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<RepositoryUrl>https://github.com/PhilipDaniels/OracleUdtClassGenerator</RepositoryUrl>
+	<PackageProjectUrl>https://github.com/PhilipDaniels/OracleUdtClassGenerator</PackageProjectUrl>
+    <PackageIcon></PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+	<PackageReleaseNotes>
+		2021-12-31 Initial release
+	</PackageReleaseNotes>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<!-- The generator lib is used only at compile time, clients do not need it at run time as it
+	     contains nothing they use. This stops NuGet from packing anything from this project, so we
+		 will include dependencies manually below. -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <BuildOutputTargetFolder>analyzers</BuildOutputTargetFolder>
+  </PropertyGroup>
+
+	<ItemGroup>
+        <None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+	
+  <PropertyGroup>
+    <NoWarn>1701;1702;NU5128</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Generator dependencies -->
+    <PackageReference Include="Sprache" Version="2.3.1" PrivateAssets="all" GeneratePathProperty="true" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <!-- Package the generator in the analyzer directory of the nuget package -->
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <!-- Package the our dependencies alongside the generator assembly -->
+    <None Include="$(PkgSprache)\lib\netstandard2.0\Sprache*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+	
+  <Target Name="CopyPackage" AfterTargets="Pack" Condition="'$(LocalNuGetDir)' != ''">
+    <Message Importance="high" Text="Copying $(OutputPath)..\$(PackageId).$(PackageVersion).nupkg to $(LocalNuGetDir)" />
+    <Copy SourceFiles="$(OutputPath)..\$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(LocalNuGetDir)" OverwriteReadOnlyFiles="true" />
+  </Target>
+  
+</Project>

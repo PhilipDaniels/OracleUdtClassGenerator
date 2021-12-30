@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OracleUdtClassGenerator.ConsoleTestHarness", "OracleUdtClassGenerator.ConsoleTestHarness\OracleUdtClassGenerator.ConsoleTestHarness.csproj", "{95C804E6-AA46-49C6-AD9A-C35FFC9F8554}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OracleUdtClassGenerator", "OracleUdtClassGenerator\OracleUdtClassGenerator.csproj", "{6D721369-5C83-40A1-8B37-14C0462550FF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OracleUdtClassGenerator.Tests", "OracleUdtrClassGenerator.Tests\OracleUdtClassGenerator.Tests.csproj", "{8FA497EC-3582-40D3-9505-0DFDD833D108}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E44C1352-9079-4647-B6E8-A3C9AB9C128A}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		LICENSE = LICENSE
+		version.json = version.json
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{95C804E6-AA46-49C6-AD9A-C35FFC9F8554}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95C804E6-AA46-49C6-AD9A-C35FFC9F8554}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95C804E6-AA46-49C6-AD9A-C35FFC9F8554}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95C804E6-AA46-49C6-AD9A-C35FFC9F8554}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D721369-5C83-40A1-8B37-14C0462550FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D721369-5C83-40A1-8B37-14C0462550FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D721369-5C83-40A1-8B37-14C0462550FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D721369-5C83-40A1-8B37-14C0462550FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FA497EC-3582-40D3-9505-0DFDD833D108}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FA497EC-3582-40D3-9505-0DFDD833D108}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FA497EC-3582-40D3-9505-0DFDD833D108}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FA497EC-3582-40D3-9505-0DFDD833D108}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7EBD5FF3-22E3-428F-A3D9-32E10B80A380}
+	EndGlobalSection
+EndGlobal

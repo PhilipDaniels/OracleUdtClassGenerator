@@ -1,0 +1,11 @@
+﻿class MyClass MYSCHEMA.objArticleRow MYSCHEMA.tblArticleRow
+    Namespace MyNamespace
+    DebuggerDisplay "my_debug_spec {Sku}"
+    ToString "Hello world"
+    Fields [
+        int? MyNullableProp SomeNullableProp
+                JustSomeString
+                int AnIntegerProperty
+      decimal? ThreeParter SomeOracleName
+                SingleParter
+    ]

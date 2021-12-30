@@ -1,0 +1,22 @@
+﻿ class ArticleMasterRecord MYSCHEMA.objArticleMaster MYSCHEMA.tblArticleMaster
+    DebuggerDisplay "{DebuggerDisplay,nq}"
+    ToString "{Sku}, {Barcode}/{Category}/{Description}"
+    Fields [
+        Activity
+        Barcode
+        Category
+        ColorDescription
+        Description
+        decimal? Height
+        decimal? Length
+        MerchandiseType
+        SizeDescription
+        Sku
+        StyleDescription
+        SubCategory
+        Thumbnail
+        int TrayItem
+        decimal? Volume
+        decimal? Weight
+        decimal? Width
+    ]
