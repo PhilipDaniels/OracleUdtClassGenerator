@@ -179,6 +179,8 @@ The generated code can be seen under the `Analyzers` node in Visual Studio.
 **n.b.** Visual Studio can be temperamental about showing these files.
 Sometimes it is necessary to close and reopen Visual Studio.
 
+If all goes well you will also have a log file that looks something like this:
+
 ```cs
 /*
 DateTime.UtcNow: 2022-01-01T22:33:03.5397481Z
