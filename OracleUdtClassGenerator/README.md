@@ -1,5 +1,7 @@
 ﻿# Oracle UDT Class Generator
 
+[![NuGet Badge](https://buildstats.info/nuget/oracleudtclassgenerator)](https://www.nuget.org/packages/OracleUdtClassGenerator/)
+
 This NuGet package contains a source generator that emits C# source code
 for mapping to and from
 [Oracle User-Defined Data Types](https://docs.oracle.com/en/database/oracle/oracle-data-access-components/19.3.2/odpnt/featUDTs.html#GUID-7913CDD0-CB22-4257-828F-FBCCA3FE9126).
