@@ -25,14 +25,22 @@ public class OracleUdtGenerator : ISourceGenerator
         //}
 #endif
 
-        // Generating as we find each file produces better logs.
-        foreach (var file in context.AdditionalFiles)
+        try
         {
-            if (Path.GetExtension(file.Path).Equals(".oraudt", StringComparison.OrdinalIgnoreCase))
+            // Generating as we find each file produces better logs.
+            foreach (var file in context.AdditionalFiles)
             {
-                Logger.Log($"Found file {file.Path}");
-                ProcessAdditionalFile(context, file);
+                if (Path.GetExtension(file.Path).Equals(".oraudt", StringComparison.OrdinalIgnoreCase))
+                {
+                    Logger.Log($"Found file {file.Path}");
+                    ProcessAdditionalFile(context, file);
+                }
             }
+
+        }
+        catch (Exception ex)
+        {
+            Logger.Log(ex.ToString());
         }
 
         Logger.WriteLogsToFile(context);
