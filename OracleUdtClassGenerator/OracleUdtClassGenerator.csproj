@@ -15,7 +15,7 @@
     <PackageIcon></PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 	<PackageReleaseNotes>
-		2021-12-31 Initial release
+		2021-01-02 Initial release
 	</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<!-- The generator lib is used only at compile time, clients do not need it at run time as it
