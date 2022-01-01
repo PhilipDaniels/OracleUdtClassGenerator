@@ -41,11 +41,10 @@ class PersonRecord MYSCHEMA.objPerson MYSCHEMA.tblPerson
 * The second identifier, `MYSCHEMA.objPerson` is the name of the Oracle
   UDT type that you created in the database using "CREATE TYPE objPerson
   AS OBJECT". This is also mandatory.
-
-The third identifier, "MYSCHEMA.tblPerson" is the name of the Oracle UDT nested
-table type that you created, for example "CREATE TYPE tblPerson AS TABLE OF objPerson".
-This field is optional. If it is not present, then C# classes for mapping
-arrays of records will not be generated.
+* The third identifier, "MYSCHEMA.tblPerson" is the name of the Oracle UDT nested
+  table type that you created, for example "CREATE TYPE tblPerson AS TABLE OF objPerson".
+  This field is optional. If it is not present, then C# classes for mapping
+  arrays of records will not be generated.
 
 Then come 3 lines which are all optional:
 
@@ -97,8 +96,8 @@ name of the property, and `WDTH` is the name of the field in the
 Oracle `OBJECT` type.
 
 A 2 part name omits the last component and defaults it to the name
-of the field - in this example, it will be `WEIGHT` (it must always
-be uppercase).
+of the field - in the following example, it will be `WEIGHT` (it must
+always be uppercase).
 
 ```
 decimal? Weight
