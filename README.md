@@ -179,6 +179,24 @@ The generated code can be seen under the `Analyzers` node in Visual Studio.
 **n.b.** Visual Studio can be temperamental about showing these files.
 Sometimes it is necessary to close and reopen Visual Studio.
 
+```cs
+/*
+DateTime.UtcNow: 2022-01-01T22:33:03.5397481Z
+
+Found file C:\repos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\ArticleMaster.oraudt
+  Found spec for ArticleMasterRecord with 17 fields
+  Generated file ArticleMasterRecord.g.cs in namespace OracleUdtClassGenerator.ConsoleTestHarness.OracleUdts
+Found file C:\repos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\MyClass.oraudt
+  Found spec for MyClass with 5 fields
+  Generated file MyClass.g.cs in namespace MyNamespace
+Found file C:\repos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\SubFolder\ArticleMaster2.oraudt
+  Found spec for ArticleMasterRecord2 with 17 fields
+  Generated file ArticleMasterRecord2.g.cs in namespace OracleUdtClassGenerator.ConsoleTestHarness.SubFolder.OracleUdts
+Found file C:\repos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\Person.oraudt
+  Found spec for PersonRecord with 3 fields
+  Generated file PersonRecord.g.cs in namespace People
+*/
+```
 
 # Further Reading
 
