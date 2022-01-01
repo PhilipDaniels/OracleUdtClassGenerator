@@ -39,18 +39,25 @@ public static class Grammar
         from _ws1 in Parse.WhiteSpace.Many()
         from _ in Parse.String("DebuggerDisplay").TokenOnLine()
         from ddspec in QuotedString
+        from _2 in OptionalCommaParser
         select ddspec;
+
+    static readonly Parser<string> OptionalCommaParser =
+        from _ in Parse.String(",").TokenOnLine().Optional()
+        select "";
 
     static readonly Parser<string> ToStringParser =
         from _ws1 in Parse.WhiteSpace.Many()
         from _ in Parse.String("ToString").TokenOnLine()
         from ddspec in QuotedString
+        from _2 in OptionalCommaParser
         select ddspec;
 
     static readonly Parser<string> NamespaceParser =
         from _ws1 in Parse.WhiteSpace.Many()
         from _ in Parse.String("Namespace").TokenOnLine()
         from name in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
+        from _2 in OptionalCommaParser
         select name;
 
     static readonly Parser<string> FieldKeywordParser =
@@ -93,7 +100,7 @@ public static class Grammar
         .Or(OnePartFieldParser);
 
     static readonly Parser<string> FieldSeparatorParser =
-        from _ in Parse.LineEnd.Or(Parse.String(","))
+        from _ in Parse.LineEnd.Or(Parse.String(",").Token())
         select "";
 
     static readonly Parser<List<FieldSpecification>> FieldListParser =
@@ -109,6 +116,7 @@ public static class Grammar
         from className in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
         from recordTypeName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
         from collectionTypeName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text().Optional()
+        from _2 in OptionalCommaParser
         from namespaceName in NamespaceParser.Optional()
         from ddspec in DebugParser.Optional()
         from tsspec in ToStringParser.Optional()

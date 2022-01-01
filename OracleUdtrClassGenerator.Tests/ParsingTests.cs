@@ -50,6 +50,28 @@ public class ParsingTests
     }
 
     [TestMethod]
+    public void WithRecordTypeAndNamespaceAndTrailingComma()
+    {
+        var input = @"
+        class MyClass SCHEMA.RECORDTYPE  ,  
+            Namespace Some.Name.Space   ,   
+            Fields [
+                Dummy
+            ]
+        ";
+
+        var specs = Grammar.ParseTargetSpecs(input);
+        specs.Count.Should().Be(1);
+        specs[0].Namespace.Should().Be("Some.Name.Space");
+        specs[0].ClassName.Should().Be("MyClass");
+        specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
+        specs[0].OracleCollectionTypeName.Should().BeNull();
+        specs[0].DebuggerDisplayFormat.Should().BeNull();
+        specs[0].ToStringFormat.Should().BeNull();
+        specs[0].Fields.Count.Should().Be(1);
+    }
+
+    [TestMethod]
     public void WithRecordTypeOnlyAndDebug()
     {
         var input = @"
@@ -151,6 +173,29 @@ public class ParsingTests
         ";
 
         var specs =  Grammar.ParseTargetSpecs(input);
+        specs.Count.Should().Be(1);
+        specs[0].Namespace.Should().BeNull();
+        specs[0].ClassName.Should().Be("MyClass");
+        specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
+        specs[0].OracleCollectionTypeName.Should().Be("SCHEMA.COLLECTIONTYPE");
+        specs[0].DebuggerDisplayFormat.Should().Be("my_debug_spec {Sku}");
+        specs[0].ToStringFormat.Should().Be("format_something");
+        specs[0].Fields.Count.Should().Be(1);
+    }
+
+    [TestMethod]
+    public void WithRecordTypeAndCollectionTypeAndDebugAndToStringAndTrailingCommas()
+    {
+        var input = @"
+        class MyClass SCHEMA.RECORDTYPE SCHEMA.COLLECTIONTYPE
+            DebuggerDisplay ""my_debug_spec {Sku}"",
+            ToString ""format_something"",
+            Fields [
+                Dummy
+            ]
+        ";
+
+        var specs = Grammar.ParseTargetSpecs(input);
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
@@ -275,6 +320,49 @@ System.Int32? NullableProp ORACLENAME
 System.Int32? NullableProp ORACLENAME ,          PropertyOnly
                 int PropAndType
       decimal? PropAndTypeAndOracle ORACLENAME2,OtherPropertyOnly
+            ]
+        ";
+
+        var specs = Grammar.ParseTargetSpecs(input);
+        specs.Count.Should().Be(1);
+        specs[0].Namespace.Should().BeNull();
+        specs[0].ClassName.Should().Be("MyClass");
+        specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
+        specs[0].OracleCollectionTypeName.Should().BeNull();
+        specs[0].DebuggerDisplayFormat.Should().BeNull();
+        specs[0].ToStringFormat.Should().BeNull();
+        specs[0].Fields.Count.Should().Be(5);
+
+        specs[0].Fields[0].PropertyName.Should().Be("NullableProp");
+        specs[0].Fields[0].DotNetDataTypeName.Should().Be("System.Int32?");
+        specs[0].Fields[0].OracleFieldName.Should().Be("ORACLENAME");
+
+        specs[0].Fields[1].PropertyName.Should().Be("PropertyOnly");
+        specs[0].Fields[1].DotNetDataTypeName.Should().BeNull();
+        specs[0].Fields[1].OracleFieldName.Should().BeNull();
+
+        specs[0].Fields[2].PropertyName.Should().Be("PropAndType");
+        specs[0].Fields[2].DotNetDataTypeName.Should().Be("int");
+        specs[0].Fields[2].OracleFieldName.Should().BeNull();
+
+        specs[0].Fields[3].PropertyName.Should().Be("PropAndTypeAndOracle");
+        specs[0].Fields[3].DotNetDataTypeName.Should().Be("decimal?");
+        specs[0].Fields[3].OracleFieldName.Should().Be("ORACLENAME2");
+
+        specs[0].Fields[4].PropertyName.Should().Be("OtherPropertyOnly");
+        specs[0].Fields[4].DotNetDataTypeName.Should().BeNull();
+        specs[0].Fields[4].OracleFieldName.Should().BeNull();
+    }
+
+    [TestMethod]
+    public void FieldsAreCorrectUsingCommasAsFieldSeparatorAndAtLineEnd()
+    {
+        var input = @"
+        class MyClass SCHEMA.RECORDTYPE
+            Fields [
+System.Int32? NullableProp ORACLENAME    ,          PropertyOnly,
+                int PropAndType   ,
+      decimal? PropAndTypeAndOracle ORACLENAME2     ,OtherPropertyOnly
             ]
         ";
 
