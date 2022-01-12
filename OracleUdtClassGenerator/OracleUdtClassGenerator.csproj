@@ -15,7 +15,8 @@
     <PackageIcon></PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 	<PackageReleaseNotes>
-		2021-01-02 Initial release
+		2022-01-12 Allow FileName and CollectionName to be specified
+		2022-01-02 Initial release
 	</PackageReleaseNotes>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<!-- The generator lib is used only at compile time, clients do not need it at run time as it
@@ -24,13 +25,6 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <BuildOutputTargetFolder>analyzers</BuildOutputTargetFolder>
   </PropertyGroup>
-
-	<ItemGroup>
-        <None Include="README.md">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-	</ItemGroup>
 	
   <PropertyGroup>
     <NoWarn>1701;1702;NU5128</NoWarn>
@@ -49,6 +43,7 @@
   <ItemGroup>
     <!-- Package the generator in the analyzer directory of the nuget package -->
     <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="..\README.md" Link="README.md" Pack="true" PackagePath="" />
     <!-- Package the our dependencies alongside the generator assembly -->
     <None Include="$(PkgSprache)\lib\netstandard2.0\Sprache*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
   </ItemGroup>

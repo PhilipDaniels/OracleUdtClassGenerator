@@ -132,7 +132,7 @@ public class OracleUdtGenerator : ISourceGenerator
         path = path.Replace('/', '.');
         path = path.Replace('\\', '.');
 
-        return $"{path}.OracleUdts";
+        return path;
     }
 
     private string GenerateSourceText(GeneratorExecutionContext context, TargetClassSpecification spec, string ns)

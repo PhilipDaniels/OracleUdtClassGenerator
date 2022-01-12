@@ -60,8 +60,7 @@ class PersonRecord MYSCHEMA.objPerson MYSCHEMA.tblPerson
 
 Namespace specifies the exact namespace to generate the code in.
 If absent, the generator tries to guess the namespace based on the
-folder that the `.oraudt` file is in. The string `.OracleUDTs` will
-always be appended to that namespace.
+folder that the `.oraudt` file is in.
 
 `DebuggerDisplay` and `ToString` can be used to automatically generate
 a `DebuggerDisplayAttribute` and a `ToString` method, respectively.
@@ -187,13 +186,13 @@ DateTime.UtcNow: 2022-01-01T22:33:03.5397481Z
 
 Found file C:\repos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\ArticleMaster.oraudt
   Found spec for ArticleMasterRecord with 17 fields
-  Generated file ArticleMasterRecord.g.cs in namespace OracleUdtClassGenerator.ConsoleTestHarness.OracleUdts
+  Generated file ArticleMasterRecord.g.cs in namespace OracleUdtClassGenerator.ConsoleTestHarness
 Found file C:\repos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\MyClass.oraudt
   Found spec for MyClass with 5 fields
   Generated file MyClass.g.cs in namespace MyNamespace
 Found file C:\repos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\SubFolder\ArticleMaster2.oraudt
   Found spec for ArticleMasterRecord2 with 17 fields
-  Generated file ArticleMasterRecord2.g.cs in namespace OracleUdtClassGenerator.ConsoleTestHarness.SubFolder.OracleUdts
+  Generated file ArticleMasterRecord2.g.cs in namespace OracleUdtClassGenerator.ConsoleTestHarness.SubFolder
 Found file C:\repos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\Person.oraudt
   Found spec for PersonRecord with 3 fields
   Generated file PersonRecord.g.cs in namespace People
