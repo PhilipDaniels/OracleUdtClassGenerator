@@ -20,6 +20,7 @@ public class ParsingTests
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().BeNull();
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();
         specs[0].DebuggerDisplayFormat.Should().BeNull();
@@ -32,7 +33,7 @@ public class ParsingTests
     {
         var input = @"
         class MyClass SCHEMA.RECORDTYPE
-                Filename MyFile.g.cs
+                Filename MyFile.g.cs ,
             Fields [
                 Dummy
             ]
@@ -43,6 +44,7 @@ public class ParsingTests
         specs[0].FileName.Should().Be("MyFile.g.cs");
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().BeNull();
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();
         specs[0].DebuggerDisplayFormat.Should().BeNull();
@@ -65,6 +67,7 @@ public class ParsingTests
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().Be("Some.Name.Space");
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().BeNull();
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();
         specs[0].DebuggerDisplayFormat.Should().BeNull();
@@ -87,6 +90,7 @@ public class ParsingTests
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().Be("Some.Name.Space");
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().BeNull();
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();
         specs[0].DebuggerDisplayFormat.Should().BeNull();
@@ -109,6 +113,7 @@ public class ParsingTests
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().BeNull();
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();
         specs[0].DebuggerDisplayFormat.Should().Be("my_debug_spec {Sku}");
@@ -135,6 +140,7 @@ public class ParsingTests
         specs[0].Namespace.Should().Be("Some.Name.Space");
         specs[0].FileName.Should().Be("MyFile.g.cs");
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().BeNull();
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();
         specs[0].DebuggerDisplayFormat.Should().Be("my_debug_spec {Sku}");
@@ -146,7 +152,8 @@ public class ParsingTests
     public void WithRecordTypeAndCollectionType()
     {
         var input = @"
-        class MyClass SCHEMA.RECORDTYPE SCHEMA.COLLECTIONTYPE
+        class MyClass SCHEMA.RECORDTYPE
+            Collection MyClassArray SCHEMA.COLLECTIONTYPE,
             Fields [
                 Dummy
             ]
@@ -156,6 +163,7 @@ public class ParsingTests
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().Be("MyClassArray");
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().Be("SCHEMA.COLLECTIONTYPE");
         specs[0].DebuggerDisplayFormat.Should().BeNull();
@@ -167,7 +175,8 @@ public class ParsingTests
     public void WithRecordTypeAndCollectionTypeAndDebug()
     {
         var input = @"
-        class MyClass SCHEMA.RECORDTYPE SCHEMA.COLLECTIONTYPE
+        class MyClass SCHEMA.RECORDTYPE 
+                Collection MyClassArray SCHEMA.COLLECTIONTYPE
             DebuggerDisplay ""my_debug_spec {Sku}""
             Fields [
                 Dummy
@@ -178,6 +187,7 @@ public class ParsingTests
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().Be("MyClassArray");
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().Be("SCHEMA.COLLECTIONTYPE");
         specs[0].DebuggerDisplayFormat.Should().Be("my_debug_spec {Sku}");
@@ -189,7 +199,8 @@ public class ParsingTests
     public void WithRecordTypeAndCollectionTypeAndDebugAndToString()
     {
         var input = @"
-        class MyClass SCHEMA.RECORDTYPE SCHEMA.COLLECTIONTYPE
+        class MyClass SCHEMA.RECORDTYPE
+Collection MyClassArray SCHEMA.COLLECTIONTYPE
             DebuggerDisplay ""my_debug_spec {Sku}""
             ToString ""format_something""
             Fields [
@@ -201,6 +212,7 @@ public class ParsingTests
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().Be("MyClassArray");
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().Be("SCHEMA.COLLECTIONTYPE");
         specs[0].DebuggerDisplayFormat.Should().Be("my_debug_spec {Sku}");
@@ -212,7 +224,8 @@ public class ParsingTests
     public void WithRecordTypeAndCollectionTypeAndDebugAndToStringAndTrailingCommas()
     {
         var input = @"
-        class MyClass SCHEMA.RECORDTYPE SCHEMA.COLLECTIONTYPE
+        class MyClass SCHEMA.RECORDTYPE
+                Collection MyClassArray SCHEMA.COLLECTIONTYPE,
             DebuggerDisplay ""my_debug_spec {Sku}"",
             ToString ""format_something"",
             Fields [
@@ -224,6 +237,7 @@ public class ParsingTests
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().Be("MyClassArray");
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().Be("SCHEMA.COLLECTIONTYPE");
         specs[0].DebuggerDisplayFormat.Should().Be("my_debug_spec {Sku}");
@@ -245,6 +259,7 @@ public class ParsingTests
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().BeNull();
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();
         specs[0].DebuggerDisplayFormat.Should().BeNull();
@@ -272,6 +287,7 @@ ThirdProperty
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().BeNull();
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();
         specs[0].DebuggerDisplayFormat.Should().BeNull();
@@ -309,6 +325,7 @@ System.Int32? NullableProp ORACLENAME
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().BeNull();
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();
         specs[0].DebuggerDisplayFormat.Should().BeNull();
@@ -352,6 +369,7 @@ System.Int32? NullableProp ORACLENAME ,          PropertyOnly
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().BeNull();
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();
         specs[0].DebuggerDisplayFormat.Should().BeNull();
@@ -395,6 +413,7 @@ System.Int32? NullableProp ORACLENAME    ,          PropertyOnly,
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().BeNull();
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();
         specs[0].DebuggerDisplayFormat.Should().BeNull();
@@ -436,6 +455,7 @@ System.Int32? NullableProp ORACLENAME
             ]
 
         class MyClass2 SCHEMA.RECORDTYPE2
+            Collection MyClass2Array SCHEMA.COLLECTIONTYPE2
  Namespace Some.Name.Space
         ToString ""format_something""
             Fields [
@@ -449,6 +469,7 @@ System.Int32? NullableProp ORACLENAME
 
         specs[0].Namespace.Should().BeNull();
         specs[0].ClassName.Should().Be("MyClass");
+        specs[0].CollectionName.Should().BeNull();
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();
         specs[0].DebuggerDisplayFormat.Should().BeNull();
@@ -477,8 +498,9 @@ System.Int32? NullableProp ORACLENAME
 
         specs[1].Namespace.Should().Be("Some.Name.Space");
         specs[1].ClassName.Should().Be("MyClass2");
+        specs[1].CollectionName.Should().Be("MyClass2Array");
         specs[1].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE2");
-        specs[1].OracleCollectionTypeName.Should().BeNull();
+        specs[1].OracleCollectionTypeName.Should().Be("SCHEMA.COLLECTIONTYPE2");
         specs[1].DebuggerDisplayFormat.Should().BeNull();
         specs[1].ToStringFormat.Should().Be("format_something");
         specs[1].Fields.Count.Should().Be(2);

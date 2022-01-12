@@ -263,12 +263,12 @@ public class OracleUdtGenerator : ISourceGenerator
 
     private void GenerateCollectionSource(IndentingStringBuilder sb, TargetClassSpecification spec)
     {
-        if (string.IsNullOrWhiteSpace(spec.OracleCollectionTypeName))
+        if (string.IsNullOrWhiteSpace(spec.CollectionName))
         {
             return;
         }
 
-        sb.AppendLine($"public partial class {spec.ClassName}Array : IOracleCustomType, INullable");
+        sb.AppendLine($"public partial class {spec.CollectionName}: IOracleCustomType, INullable");
         using (sb.BeginCodeBlock())
         {
             sb.AppendLine("[OracleArrayMapping]");
@@ -277,7 +277,7 @@ public class OracleUdtGenerator : ISourceGenerator
             sb.AppendLines(
                 "private bool objectIsNull;",
                 "public bool IsNull => objectIsNull;",
-                $"public static {spec.ClassName}Array Null => new() {{ objectIsNull = true }};");
+                $"public static {spec.CollectionName} Null => new() {{ objectIsNull = true }};");
             sb.AppendLine();
 
             sb.AppendLine("public void FromCustomObject(OracleConnection con, object udt)");
@@ -297,32 +297,32 @@ public class OracleUdtGenerator : ISourceGenerator
 
     private void GenerateCollectionFactorySource(IndentingStringBuilder sb, TargetClassSpecification spec)
     {
-        if (string.IsNullOrWhiteSpace(spec.OracleCollectionTypeName))
+        if (string.IsNullOrWhiteSpace(spec.CollectionName))
         {
             return;
         }
 
         sb.AppendLines(
             "/// <summary>",
-            $"/// An Oracle factory for the {spec.ClassName}Array type.",
-            "/// This allows us to bind/create arrays of objects.",
+            $"/// An Oracle factory for the {spec.CollectionName} type.",
+            $"/// This allows us to bind/create arrays of {spec.ClassName} objects.",
             "/// </summary>",
             $"[OracleCustomTypeMapping(\"{spec.OracleCollectionTypeName}\")]",
-            $"public partial class {spec.ClassName}ArrayFactory: IOracleCustomTypeFactory, IOracleArrayTypeFactory");
+            $"public partial class {spec.CollectionName}Factory: IOracleCustomTypeFactory, IOracleArrayTypeFactory");
 
         using (sb.BeginCodeBlock())
         {
             sb.AppendLine($"public IOracleCustomType CreateObject()");
             using (sb.BeginCodeBlock())
             {
-                sb.AppendLine($"return new {spec.ClassName}Array();");
+                sb.AppendLine($"return new {spec.CollectionName}();");
             }
             sb.AppendLine();
 
             sb.AppendLine($"public Array CreateArray(int numElems)");
             using (sb.BeginCodeBlock())
             {
-                sb.AppendLine($"return new {spec.ClassName}Array[numElems];");
+                sb.AppendLine($"return new {spec.CollectionName}[numElems];");
             }
             sb.AppendLine();
 

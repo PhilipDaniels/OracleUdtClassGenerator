@@ -67,6 +67,21 @@ public static class Grammar
         from _2 in OptionalCommaParser
         select name;
 
+    static readonly Parser<(string, string)> ClassNameParser =
+        from _ in Parse.String("class").TokenOnLine()
+        from csharpClassName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
+        from oracleObjectTypeName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
+        from _2 in OptionalCommaParser
+        select (csharpClassName, oracleObjectTypeName);
+
+    static readonly Parser<(string, string)> CollectionNameParser =
+        from _ws1 in Parse.WhiteSpace.Many()
+        from _ in Parse.String("Collection").TokenOnLine()
+        from csharpCollectionName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
+        from oracleCollectionTypeName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
+        from _2 in OptionalCommaParser
+        select (csharpCollectionName, oracleCollectionTypeName);
+
     static readonly Parser<string> FieldKeywordParser =
         from _ws1 in Parse.WhiteSpace.Many()
         from _f in Parse.String("Fields").Token().Text()
@@ -119,11 +134,8 @@ public static class Grammar
         select elements.ToList();
 
     static readonly Parser<TargetClassSpecification> TargetClassSpecificationParser =
-        from _ in Parse.String("class").TokenOnLine().Text()
-        from className in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
-        from recordTypeName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
-        from collectionTypeName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text().Optional()
-        from _2 in OptionalCommaParser
+        from classNames in ClassNameParser
+        from collectionNames in CollectionNameParser.Optional()
         from namespaceName in NamespaceParser.Optional()
         from filename in FilenameParser.Optional()
         from ddspec in DebugParser.Optional()
@@ -133,9 +145,10 @@ public static class Grammar
         {
             FileName = filename.GetOrDefault(),
             Namespace = namespaceName.GetOrDefault(),
-            ClassName = className,
-            OracleRecordTypeName = recordTypeName,
-            OracleCollectionTypeName = collectionTypeName.GetOrDefault(),
+            ClassName = classNames.Item1,
+            CollectionName = collectionNames.IsDefined ? collectionNames.Get().Item1 : null,
+            OracleRecordTypeName = classNames.Item2,
+            OracleCollectionTypeName = collectionNames.IsDefined ? collectionNames.Get().Item2 : null,
             DebuggerDisplayFormat = ddspec.GetOrDefault(),
             ToStringFormat = tsspec.GetOrDefault(),
             Fields = fields
