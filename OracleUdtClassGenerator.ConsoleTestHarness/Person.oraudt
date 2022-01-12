@@ -1,3 +1,4 @@
-﻿class PersonRecord MYSCHEMA.objPerson MYSCHEMA.tblPerson
+﻿class PersonRecord MYSCHEMA.objPerson
+    Collection PersonArray MYSCHEMA.tblPerson
     Namespace People
     Fields [System.Int32 Age,FirstName,LastName]

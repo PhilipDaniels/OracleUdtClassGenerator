@@ -16,5 +16,5 @@
 
 
 var x = new People.PersonRecord();
-var y = new OracleUdtClassGenerator.ConsoleTestHarness.OracleUdts.ArticleMasterRecord();
+var y = new OracleUdtClassGenerator.ConsoleTestHarness.ArticleMasterRecord();
 var z = new MyNamespace.MyClass();

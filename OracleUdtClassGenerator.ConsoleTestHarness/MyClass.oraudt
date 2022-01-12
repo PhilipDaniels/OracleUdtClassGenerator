@@ -1,4 +1,5 @@
-﻿class MyClass MYSCHEMA.objArticleRow MYSCHEMA.tblArticleRow
+﻿class MyClass MYSCHEMA.objArticleRow
+    Collection MyClassArray MYSCHEMA.tblArticleRow
     Namespace MyNamespace
     DebuggerDisplay "my_debug_spec {Sku}"
     ToString "Hello world"

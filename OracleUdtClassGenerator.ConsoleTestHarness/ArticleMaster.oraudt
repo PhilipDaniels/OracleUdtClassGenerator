@@ -1,4 +1,5 @@
-﻿ class ArticleMasterRecord MYSCHEMA.objArticleMaster MYSCHEMA.tblArticleMaster
+﻿ class ArticleMasterRecord MYSCHEMA.objArticleMaster
+    Collection ArticleMasterArray MYSCHEMA.tblArticleMaster
     DebuggerDisplay "{DebuggerDisplay,nq}"
     ToString "{Sku}, {Barcode}/{Category}/{Description}"
     Fields [
