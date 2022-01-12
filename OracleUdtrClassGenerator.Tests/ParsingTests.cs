@@ -28,6 +28,29 @@ public class ParsingTests
     }
 
     [TestMethod]
+    public void WithFilename()
+    {
+        var input = @"
+        class MyClass SCHEMA.RECORDTYPE
+                Filename MyFile.g.cs
+            Fields [
+                Dummy
+            ]
+        ";
+
+        var specs = Grammar.ParseTargetSpecs(input);
+        specs.Count.Should().Be(1);
+        specs[0].FileName.Should().Be("MyFile.g.cs");
+        specs[0].Namespace.Should().BeNull();
+        specs[0].ClassName.Should().Be("MyClass");
+        specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
+        specs[0].OracleCollectionTypeName.Should().BeNull();
+        specs[0].DebuggerDisplayFormat.Should().BeNull();
+        specs[0].ToStringFormat.Should().BeNull();
+        specs[0].Fields.Count.Should().Be(1);
+    }
+
+    [TestMethod]
     public void WithRecordTypeAndNamespace()
     {
         var input = @"
@@ -99,6 +122,7 @@ public class ParsingTests
         var input = @"
         class MyClass SCHEMA.RECORDTYPE
             Namespace Some.Name.Space
+            Filename MyFile.g.cs
             DebuggerDisplay ""my_debug_spec {Sku}""
             ToString ""format_something""
             Fields [
@@ -109,6 +133,7 @@ public class ParsingTests
         var specs =  Grammar.ParseTargetSpecs(input);
         specs.Count.Should().Be(1);
         specs[0].Namespace.Should().Be("Some.Name.Space");
+        specs[0].FileName.Should().Be("MyFile.g.cs");
         specs[0].ClassName.Should().Be("MyClass");
         specs[0].OracleRecordTypeName.Should().Be("SCHEMA.RECORDTYPE");
         specs[0].OracleCollectionTypeName.Should().BeNull();

@@ -60,6 +60,13 @@ public static class Grammar
         from _2 in OptionalCommaParser
         select name;
 
+    static readonly Parser<string> FilenameParser =
+        from _ws1 in Parse.WhiteSpace.Many()
+        from _ in Parse.String("Filename").TokenOnLine()
+        from name in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
+        from _2 in OptionalCommaParser
+        select name;
+
     static readonly Parser<string> FieldKeywordParser =
         from _ws1 in Parse.WhiteSpace.Many()
         from _f in Parse.String("Fields").Token().Text()
@@ -118,11 +125,13 @@ public static class Grammar
         from collectionTypeName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text().Optional()
         from _2 in OptionalCommaParser
         from namespaceName in NamespaceParser.Optional()
+        from filename in FilenameParser.Optional()
         from ddspec in DebugParser.Optional()
         from tsspec in ToStringParser.Optional()
         from fields in FieldListParser
         select new TargetClassSpecification
         {
+            FileName = filename.GetOrDefault(),
             Namespace = namespaceName.GetOrDefault(),
             ClassName = className,
             OracleRecordTypeName = recordTypeName,

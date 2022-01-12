@@ -4,8 +4,10 @@ namespace OracleUdtClassGenerator;
 
 public class TargetClassSpecification
 {
+    public string FileName { get; set; }
     public string Namespace { get; set; }
     public string ClassName { get; set; }
+    public string CollectionName { get; set; }
     public string OracleRecordTypeName { get; set; }
     public string OracleCollectionTypeName { get; set; }
     public string DebuggerDisplayFormat { get; set; }

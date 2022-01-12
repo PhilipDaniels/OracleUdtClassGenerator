@@ -97,6 +97,10 @@ public class OracleUdtGenerator : ISourceGenerator
 
             var source = GenerateSourceText(context, spec, ns);
             var filename = $"{spec.ClassName}.g.cs";
+            if (!string.IsNullOrWhiteSpace(spec.FileName))
+            {
+                filename = spec.FileName.Trim();
+            }
             Logger.Log($"  Generated file {filename} in namespace {ns}");
             context.AddSource(filename, SourceText.From(source, Encoding.UTF8));
         }
