@@ -35,40 +35,12 @@ public static class Grammar
         from close in DoubleQuote
         select text;
 
-    static readonly Parser<string> DebugParser =
-        from _ws1 in Parse.WhiteSpace.Many()
-        from _ in Parse.String("DebuggerDisplay").TokenOnLine()
-        from ddspec in QuotedString
-        from _2 in OptionalCommaParser
-        select ddspec;
-
     static readonly Parser<string> OptionalCommaParser =
         from _ in Parse.String(",").TokenOnLine().Optional()
         select "";
 
-    static readonly Parser<string> ToStringParser =
-        from _ws1 in Parse.WhiteSpace.Many()
-        from _ in Parse.String("ToString").TokenOnLine()
-        from ddspec in QuotedString
-        from _2 in OptionalCommaParser
-        select ddspec;
-
-    static readonly Parser<string> NamespaceParser =
-        from _ws1 in Parse.WhiteSpace.Many()
-        from _ in Parse.String("Namespace").TokenOnLine()
-        from name in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
-        from _2 in OptionalCommaParser
-        select name;
-
-    static readonly Parser<string> FilenameParser =
-        from _ws1 in Parse.WhiteSpace.Many()
-        from _ in Parse.String("Filename").TokenOnLine()
-        from name in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
-        from _2 in OptionalCommaParser
-        select name;
-
     static readonly Parser<(string, string)> ClassNameParser =
-        from _ in Parse.String("class").TokenOnLine()
+        from _ in Parse.IgnoreCase("CLASS").TokenOnLine()
         from csharpClassName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
         from oracleObjectTypeName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
         from _2 in OptionalCommaParser
@@ -76,15 +48,43 @@ public static class Grammar
 
     static readonly Parser<(string, string)> CollectionNameParser =
         from _ws1 in Parse.WhiteSpace.Many()
-        from _ in Parse.String("Collection").TokenOnLine()
+        from _ in Parse.IgnoreCase("COLLECTION").TokenOnLine()
         from csharpCollectionName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
         from oracleCollectionTypeName in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
         from _2 in OptionalCommaParser
         select (csharpCollectionName, oracleCollectionTypeName);
 
+    static readonly Parser<string> NamespaceParser =
+        from _ws1 in Parse.WhiteSpace.Many()
+        from _ in Parse.IgnoreCase("NAMESPACE").TokenOnLine()
+        from name in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
+        from _2 in OptionalCommaParser
+        select name;
+
+    static readonly Parser<string> FilenameParser =
+        from _ws1 in Parse.WhiteSpace.Many()
+        from _ in Parse.IgnoreCase("FILENAME").TokenOnLine()
+        from name in Parse.Identifier(Parse.Letter, TokenChar).TokenOnLine().Text()
+        from _2 in OptionalCommaParser
+        select name;
+
+    static readonly Parser<string> DebugParser =
+        from _ws1 in Parse.WhiteSpace.Many()
+        from _ in Parse.IgnoreCase("DEBUGGERDISPLAY").TokenOnLine()
+        from ddspec in QuotedString
+        from _2 in OptionalCommaParser
+        select ddspec;
+
+    static readonly Parser<string> ToStringParser =
+        from _ws1 in Parse.WhiteSpace.Many()
+        from _ in Parse.IgnoreCase("TOSTRING").TokenOnLine()
+        from ddspec in QuotedString
+        from _2 in OptionalCommaParser
+        select ddspec;
+
     static readonly Parser<string> FieldKeywordParser =
         from _ws1 in Parse.WhiteSpace.Many()
-        from _f in Parse.String("Fields").Token().Text()
+        from _f in Parse.IgnoreCase("FIELDS").Token().Text()
         from _lb in Parse.String("[").Token().Text()
         select "";
 
