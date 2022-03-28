@@ -8,12 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="EmptyFile.oraudt" />
     <None Remove="MyClass.oraudt" />
     <None Remove="Person.oraudt" />
     <None Remove="SubFolder\ArticleMaster2.oraudt" />
   </ItemGroup>
 
   <ItemGroup>
+    <AdditionalFiles Include="EmptyFile.oraudt" />
     <AdditionalFiles Include="Person.oraudt" />
     <AdditionalFiles Include="MyClass.oraudt" />
     <AdditionalFiles Include="ArticleMaster.oraudt" />
@@ -26,7 +28,7 @@
   <ItemGroup>
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.4" />
 	<!-- Must install as a NuGet package due to the way packing works. -->
-    <PackageReference Include="OracleUdtClassGenerator" Version="1.1.0-ge952cf5934" />
+    <PackageReference Include="OracleUdtClassGenerator" Version="1.1.0-g060f5bf94f" />
   </ItemGroup>
 
 </Project>
