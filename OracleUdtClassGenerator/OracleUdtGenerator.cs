@@ -93,8 +93,6 @@ public class OracleUdtGenerator : IIncrementalGenerator
             var ns = spec.Namespace;
             try
             {
-                throw new Exception();
-
                 if (string.IsNullOrWhiteSpace(ns))
                     ns = GuessNamespace(assemblyName, file);
             }
