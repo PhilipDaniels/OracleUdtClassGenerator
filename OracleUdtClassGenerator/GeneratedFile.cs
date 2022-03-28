@@ -1,4 +1,6 @@
-﻿namespace OracleUdtClassGenerator;
+﻿using System.Collections.Generic;
+
+namespace OracleUdtClassGenerator;
 
 public struct GeneratedFile
 {

@@ -30,9 +30,11 @@ public class OracleUdtGenerator : IIncrementalGenerator
             };
         });
 
-        var generatedFiles = combined.SelectMany(static (input, token) =>
+        var diagnostics = new List<Diagnostic>();
+
+        var generatedFiles = combined.SelectMany((input, token) =>
         {
-            return ProcessOraUdtFile(input.AssemblyName, input.AdditionalText, input.SourceContents);
+            return ProcessOraUdtFile(diagnostics, input.AssemblyName, input.AdditionalText, input.SourceContents);
         });
 
         context.RegisterSourceOutput(generatedFiles, static (spc, generatedFile) =>
@@ -41,32 +43,33 @@ public class OracleUdtGenerator : IIncrementalGenerator
             spc.AddSource(generatedFile.FileName, sourceText);
         });
 
-        //context.RegisterSourceOutput(assemblyName, (spc, _) =>
-        //{
-        //    // Also produce a logs file. DOESN'T SEEM TO WORK IN THE NEW INCREMENTAL WORLD.
-        //    // The log is updated only on the first time through.
-        //    Logger.WriteLogsToFile(spc);
-        //});
+        context.RegisterSourceOutput(assemblyName, (spc, _) =>
+        {
+            foreach (var diag in diagnostics)
+            {
+                spc.ReportDiagnostic(diag);
+            }
+        });
     }
 
-    private static IEnumerable<GeneratedFile> ProcessOraUdtFile(string assemblyName, AdditionalText additional, string contents)
+    private static IEnumerable<GeneratedFile> ProcessOraUdtFile(List<Diagnostic> diagnostics, string assemblyName, AdditionalText additional, string contents)
     {
         var results = new List<GeneratedFile>();
 
         try
         {
-            Logger.Log($"Found file {additional.Path}");
+            diagnostics.Add(Diagnostics.MakeFoundFileDiagnostic(additional.Path));
 
             if (string.IsNullOrWhiteSpace(contents))
             {
-                Logger.Log($"  File {additional.Path} is blank");
+                diagnostics.Add(Diagnostics.MakeEmptyFileDiagnostic(additional.Path));
             }
             else
             {
                 var targetSpecs = Grammar.ParseTargetSpecs(contents);
                 foreach (var spec in targetSpecs)
                 {
-                    Logger.Log($"  Found spec for {spec.ClassName} with {spec.Fields.Count} fields");
+                    //Logger.Log($"  Found spec for {spec.ClassName} with {spec.Fields.Count} fields");
                     var generatedFileContents = CreateSourceText(assemblyName, additional, spec);
                     if (!string.IsNullOrWhiteSpace(generatedFileContents.Contents))
                     {
@@ -77,7 +80,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
         }
         catch (Exception ex)
         {
-            Logger.Log(ex.ToString());
+            //Logger.Log(ex.ToString());
         }
 
         return results;
@@ -96,7 +99,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
             catch
             {
                 ns = spec.Namespace;
-                Logger.Log($"  Could not determine namespace from project folder structure, using default of {ns}");
+                //Logger.Log($"  Could not determine namespace from project folder structure, using default of {ns}");
             }
 
             var source = GenerateSourceText(spec, ns);
@@ -105,12 +108,12 @@ public class OracleUdtGenerator : IIncrementalGenerator
             {
                 filename = spec.FileName.Trim();
             }
-            Logger.Log($"  Generated file {filename} in namespace {ns}");
+            //Logger.Log($"  Generated file {filename} in namespace {ns}");
             return new GeneratedFile {  Contents = source, FileName = filename };
         }
         catch (Exception ex)
         {
-            Logger.Log(ex.ToString());
+            //Logger.Log(ex.ToString());
             return new GeneratedFile();
         }
     }
