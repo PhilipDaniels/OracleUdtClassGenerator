@@ -69,8 +69,8 @@ public class OracleUdtGenerator : IIncrementalGenerator
                 var targetSpecs = Grammar.ParseTargetSpecs(contents);
                 foreach (var spec in targetSpecs)
                 {
-                    //Logger.Log($"  Found spec for {spec.ClassName} with {spec.Fields.Count} fields");
-                    var generatedFileContents = CreateSourceText(assemblyName, additional, spec);
+                    diagnostics.Add(Diagnostics.MakeFoundSpecDiagnostic(spec.ClassName, spec.Fields.Count));
+                    var generatedFileContents = CreateSourceText(diagnostics, assemblyName, additional, spec);
                     if (!string.IsNullOrWhiteSpace(generatedFileContents.Contents))
                     {
                         results.Add(generatedFileContents);
@@ -80,13 +80,13 @@ public class OracleUdtGenerator : IIncrementalGenerator
         }
         catch (Exception ex)
         {
-            //Logger.Log(ex.ToString());
+            diagnostics.Add(Diagnostics.MakeExceptionOccurredDiagnostic(ex));
         }
 
         return results;
     }
 
-    private static GeneratedFile CreateSourceText(string assemblyName, AdditionalText file, TargetClassSpecification spec)
+    private static GeneratedFile CreateSourceText(List<Diagnostic> diagnostics, string assemblyName, AdditionalText file, TargetClassSpecification spec)
     {
         try
         {
@@ -99,7 +99,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
             catch
             {
                 ns = spec.Namespace;
-                //Logger.Log($"  Could not determine namespace from project folder structure, using default of {ns}");
+                diagnostics.Add(Diagnostics.MakeCouldNotDetermineNamespaceDiagnostic(ns));
             }
 
             var source = GenerateSourceText(spec, ns);
@@ -108,12 +108,13 @@ public class OracleUdtGenerator : IIncrementalGenerator
             {
                 filename = spec.FileName.Trim();
             }
-            //Logger.Log($"  Generated file {filename} in namespace {ns}");
+            diagnostics.Add(Diagnostics.MakeGeneratedFileDiagnostic(filename, ns));
+
             return new GeneratedFile {  Contents = source, FileName = filename };
         }
         catch (Exception ex)
         {
-            //Logger.Log(ex.ToString());
+            diagnostics.Add(Diagnostics.MakeExceptionOccurredDiagnostic(ex));
             return new GeneratedFile();
         }
     }
