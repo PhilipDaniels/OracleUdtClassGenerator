@@ -15,16 +15,13 @@ public class OracleUdtGenerator : IIncrementalGenerator
     {
         // nb. See https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md#caching
 
-        //IncrementalValueProvider<string> assemblyName;
-        //IncrementalValuesProvider<AdditionalText> texts;
-        //IncrementalValuesProvider<(AdditionalText Left, string Right)> textsAndAssembly;
         var assemblyName = context.CompilationProvider.Select(static (c, _) => c.AssemblyName);
         var texts = context.AdditionalTextsProvider.Where(static file => file.Path.EndsWith(".oraudt", StringComparison.OrdinalIgnoreCase));
         var textsAndAssembly = texts.Combine(assemblyName);
 
-        var combined = textsAndAssembly.Select((file, token) =>
+        var combined = textsAndAssembly.Select(static (file, cancellationToken) =>
         {
-            var sourceContents = file.Left.GetText(token)!.ToString();
+            var sourceContents = file.Left.GetText(cancellationToken)!.ToString();
             return new FileAndContents
             {
                 AssemblyName = file.Right,
@@ -33,25 +30,26 @@ public class OracleUdtGenerator : IIncrementalGenerator
             };
         });
 
-        var generatedFiles = combined.SelectMany((input, token) =>
+        var generatedFiles = combined.SelectMany(static (input, token) =>
         {
             return ProcessOraUdtFile(input.AssemblyName, input.AdditionalText, input.SourceContents);
         });
 
-        context.RegisterSourceOutput(generatedFiles, (spc, generatedFile) =>
+        context.RegisterSourceOutput(generatedFiles, static (spc, generatedFile) =>
         {
             var sourceText = SourceText.From(generatedFile.Contents, Encoding.UTF8);
             spc.AddSource(generatedFile.FileName, sourceText);
         });
 
-        context.RegisterSourceOutput(assemblyName, (spc, _) =>
-        {
-            // Also produce a logs file.
-            Logger.WriteLogsToFile(spc);
-        });
+        //context.RegisterSourceOutput(assemblyName, (spc, _) =>
+        //{
+        //    // Also produce a logs file. DOESN'T SEEM TO WORK IN THE NEW INCREMENTAL WORLD.
+        //    // The log is updated only on the first time through.
+        //    Logger.WriteLogsToFile(spc);
+        //});
     }
 
-    private IEnumerable<GeneratedFile> ProcessOraUdtFile(string assemblyName, AdditionalText additional, string contents)
+    private static IEnumerable<GeneratedFile> ProcessOraUdtFile(string assemblyName, AdditionalText additional, string contents)
     {
         var results = new List<GeneratedFile>();
 
@@ -85,7 +83,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
         return results;
     }
 
-    private GeneratedFile CreateSourceText(string assemblyName, AdditionalText file, TargetClassSpecification spec)
+    private static GeneratedFile CreateSourceText(string assemblyName, AdditionalText file, TargetClassSpecification spec)
     {
         try
         {
@@ -120,7 +118,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
     /// <summary>
     /// Try and guess the namespace based on the path of the .oraudt file. Nasty.
     /// </summary>
-    private string GuessNamespace(string assemblyName, AdditionalText file)
+    private  static string GuessNamespace(string assemblyName, AdditionalText file)
     {
         // Start with the full path of the additional file and trim off the filename.
         var path = Path.GetDirectoryName(file.Path);
@@ -141,7 +139,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
         return path;
     }
 
-    private string GenerateSourceText(TargetClassSpecification spec, string ns)
+    private static string GenerateSourceText(TargetClassSpecification spec, string ns)
     {
         var sb = new IndentingStringBuilder();
         sb.AppendLines(
@@ -166,7 +164,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
         return sb.ToString();
     }
 
-    private void GenerateClassSource(IndentingStringBuilder sb, TargetClassSpecification spec)
+    private static void GenerateClassSource(IndentingStringBuilder sb, TargetClassSpecification spec)
     {
         if (!string.IsNullOrWhiteSpace(spec.DebuggerDisplayFormat))
             sb.AppendLine($"[DebuggerDisplay(\"{spec.DebuggerDisplayFormat}\")]");
@@ -247,7 +245,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
         }
     }
 
-    private void GenerateClassFactorySource(IndentingStringBuilder sb, TargetClassSpecification spec)
+    private static void GenerateClassFactorySource(IndentingStringBuilder sb, TargetClassSpecification spec)
     {
         sb.AppendLines(
             "/// <summary>",
@@ -267,7 +265,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
         }
     }
 
-    private void GenerateCollectionSource(IndentingStringBuilder sb, TargetClassSpecification spec)
+    private static void GenerateCollectionSource(IndentingStringBuilder sb, TargetClassSpecification spec)
     {
         if (string.IsNullOrWhiteSpace(spec.CollectionName))
         {
@@ -301,7 +299,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
         }
     }
 
-    private void GenerateCollectionFactorySource(IndentingStringBuilder sb, TargetClassSpecification spec)
+    private static void GenerateCollectionFactorySource(IndentingStringBuilder sb, TargetClassSpecification spec)
     {
         if (string.IsNullOrWhiteSpace(spec.CollectionName))
         {
