@@ -33,7 +33,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
             };
         });
 
-        var generatedFiles = combined.SelectMany<FileAndContents, GeneratedFile>((input, token) =>
+        var generatedFiles = combined.SelectMany((input, token) =>
         {
             return ProcessOraUdtFile(input.AssemblyName, input.AdditionalText, input.SourceContents);
         });
@@ -44,67 +44,11 @@ public class OracleUdtGenerator : IIncrementalGenerator
             spc.AddSource(generatedFile.FileName, sourceText);
         });
 
-        /*
-        context.RegisterSourceOutput(textsAndAssembly, (spc, pair) =>
+        context.RegisterSourceOutput(assemblyName, (spc, _) =>
         {
-            try
-            {
-                var text = pair.Left;
-                var assemblyName = pair.Right;
-                var contents = text.GetText()!.ToString();
-
-                if (!string.IsNullOrWhiteSpace(contents))
-                {
-                    var generatedFiles = ProcessOraUdtFile(assemblyName, text, contents);
-                    foreach (var generatedFile in generatedFiles)
-                    {
-                        var sourceText = SourceText.From(generatedFile.Contents, Encoding.UTF8);
-                        spc.AddSource(generatedFile.FileName, sourceText);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log(ex.ToString());
-            }
-            finally
-            {
-                // Also produce a logs file.
-                Logger.WriteLogsToFile(spc);
-            }
-        });
-        */
-
-        /*
-        // Read the contents of each additional file.
-        IncrementalValuesProvider<FileAndContents> namesAndContents = texts
-            .Select((addText, cancellationToken) => new FileAndContents {
-                AdditionalText = addText,
-                Contents = addText.GetText(cancellationToken)!.ToString()
-            })
-            .Where(files => !string.IsNullOrWhiteSpace(files.Contents));
-
-
-        context.RegisterSourceOutput(compilationAndUdts, (sourceProductionContext, generationInput) =>
-        {
-            var comp = generationInput.Item1;
-            var inputFiles = generationInput.Item2;
-
-            foreach (var inputFile in inputFiles)
-            {
-                var generatedFiles = ProcessOraUdtFile(comp, inputFile.AdditionalText, inputFile.Contents);
-                foreach (var generatedFile in generatedFiles)
-                {
-                    var sourceText = SourceText.From(generatedFile.Contents, Encoding.UTF8);
-                    sourceProductionContext.AddSource(generatedFile.FileName, sourceText);
-                }
-            }
-
             // Also produce a logs file.
-            Logger.WriteLogsToFile(sourceProductionContext);
-            
+            Logger.WriteLogsToFile(spc);
         });
-        */
     }
 
     private IEnumerable<GeneratedFile> ProcessOraUdtFile(string assemblyName, AdditionalText additional, string contents)
