@@ -21,7 +21,7 @@ internal static class Logger
     /// <summary>
     /// Writes the output to the log file.
     /// </summary>
-    internal static void WriteLogsToFile(GeneratorExecutionContext context)
+    internal static void WriteLogsToFile(SourceProductionContext context)
     {
         var sb = new StringBuilder();
         sb.AppendLine("/*");

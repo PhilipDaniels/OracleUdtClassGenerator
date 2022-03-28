@@ -1,85 +1,126 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
 namespace OracleUdtClassGenerator;
 
-[Generator]
-public class OracleUdtGenerator : ISourceGenerator
+public class FileAndContents
 {
-    private SyntaxReceiver syntaxReceiver = new SyntaxReceiver();
+    public AdditionalText AdditionalText { get; set; }
+    public string Contents { get; set; }
+}
 
-    public void Initialize(GeneratorInitializationContext context)
+public class GeneratedFile
+{
+    public string FileName { get; set; } 
+    public string Contents { get; set; }
+}
+
+[Generator(LanguageNames.CSharp)]
+public class OracleUdtGenerator : IIncrementalGenerator
+{
+    public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterForSyntaxNotifications(() => syntaxReceiver);
-    }
+        // nb. See https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md#caching
 
-    public void Execute(GeneratorExecutionContext context)
-    {
-#if DEBUG
-        //if (!Debugger.IsAttached)
-        //{
-        //    Debugger.Launch();
-        //}
-#endif
+        var assemblyName = context.CompilationProvider.Select(static (c, _) => c.AssemblyName);
+        var texts = context.AdditionalTextsProvider.Where(static file => file.Path.EndsWith(".oraudt", StringComparison.OrdinalIgnoreCase));
+        var textsAndAssembly = texts.Combine(assemblyName);
 
-        try
+        context.RegisterSourceOutput(textsAndAssembly, (spc, pair) =>
         {
-            // Generating as we find each file produces better logs.
-            foreach (var file in context.AdditionalFiles)
+            try
             {
-                if (Path.GetExtension(file.Path).Equals(".oraudt", StringComparison.OrdinalIgnoreCase))
+                var text = pair.Left;
+                var assemblyName = pair.Right;
+                var contents = text.GetText()!.ToString();
+
+                if (!string.IsNullOrWhiteSpace(contents))
                 {
-                    Logger.Log($"Found file {file.Path}");
-                    ProcessAdditionalFile(context, file);
+                    var generatedFiles = ProcessOraUdtFile(assemblyName, text, contents);
+                    foreach (var generatedFile in generatedFiles)
+                    {
+                        var sourceText = SourceText.From(generatedFile.Contents, Encoding.UTF8);
+                        spc.AddSource(generatedFile.FileName, sourceText);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.ToString());
+            }
+            finally
+            {
+                // Also produce a logs file.
+                Logger.WriteLogsToFile(spc);
+            }
+        });
+
+        /*
+        // Read the contents of each additional file.
+        IncrementalValuesProvider<FileAndContents> namesAndContents = texts
+            .Select((addText, cancellationToken) => new FileAndContents {
+                AdditionalText = addText,
+                Contents = addText.GetText(cancellationToken)!.ToString()
+            })
+            .Where(files => !string.IsNullOrWhiteSpace(files.Contents));
+
+
+        context.RegisterSourceOutput(compilationAndUdts, (sourceProductionContext, generationInput) =>
+        {
+            var comp = generationInput.Item1;
+            var inputFiles = generationInput.Item2;
+
+            foreach (var inputFile in inputFiles)
+            {
+                var generatedFiles = ProcessOraUdtFile(comp, inputFile.AdditionalText, inputFile.Contents);
+                foreach (var generatedFile in generatedFiles)
+                {
+                    var sourceText = SourceText.From(generatedFile.Contents, Encoding.UTF8);
+                    sourceProductionContext.AddSource(generatedFile.FileName, sourceText);
                 }
             }
 
-        }
-        catch (Exception ex)
-        {
-            Logger.Log(ex.ToString());
-        }
-
-        Logger.WriteLogsToFile(context);
+            // Also produce a logs file.
+            Logger.WriteLogsToFile(sourceProductionContext);
+            
+        });
+        */
     }
 
-    private void ProcessAdditionalFile(GeneratorExecutionContext context, AdditionalText file)
+    private IEnumerable<GeneratedFile> ProcessOraUdtFile(string assemblyName, AdditionalText additional, string contents)
     {
-        try
-        {
-            var text = file.GetText()?.ToString();
-            if (!string.IsNullOrEmpty(text))
-            {
-                ProcessAdditionalFileContents(context, file, text);
-            }
-        }
-        catch (Exception ex)
-        {
-            Logger.Log(ex.ToString());
-        }
-    }
+        var results = new List<GeneratedFile>();
 
-    private void ProcessAdditionalFileContents(GeneratorExecutionContext context, AdditionalText file, string text)
-    {
         try
         {
-            var targetSpecs = Grammar.ParseTargetSpecs(text);
+            Logger.Log($"Found file {additional.Path}");
+
+            var targetSpecs = Grammar.ParseTargetSpecs(contents);
             foreach (var spec in targetSpecs)
             {
                 Logger.Log($"  Found spec for {spec.ClassName} with {spec.Fields.Count} fields");
-                CreateSourceFile(context, file, spec);
+                var generatedFileContents = CreateSourceText(assemblyName, additional, spec);
+                if (generatedFileContents != null)
+                {
+                    results.Add(generatedFileContents);
+                }
             }
+
+            return results;
         }
         catch (Exception ex)
         {
             Logger.Log(ex.ToString());
+            return Enumerable.Empty<GeneratedFile>();
         }
     }
 
-    private void CreateSourceFile(GeneratorExecutionContext context, AdditionalText file, TargetClassSpecification spec)
+    private GeneratedFile CreateSourceText(string assemblyName, AdditionalText file, TargetClassSpecification spec)
     {
         try
         {
@@ -87,7 +128,7 @@ public class OracleUdtGenerator : ISourceGenerator
             try
             {
                 if (string.IsNullOrWhiteSpace(ns))
-                    ns = GuessNamespace(context, file);
+                    ns = GuessNamespace(assemblyName, file);
             }
             catch
             {
@@ -95,36 +136,36 @@ public class OracleUdtGenerator : ISourceGenerator
                 Logger.Log($"  Could not determine namespace from project folder structure, using default of {ns}");
             }
 
-            var source = GenerateSourceText(context, spec, ns);
+            var source = GenerateSourceText(spec, ns);
             var filename = $"{spec.ClassName}.g.cs";
             if (!string.IsNullOrWhiteSpace(spec.FileName))
             {
                 filename = spec.FileName.Trim();
             }
             Logger.Log($"  Generated file {filename} in namespace {ns}");
-            context.AddSource(filename, SourceText.From(source, Encoding.UTF8));
+            return new GeneratedFile {  Contents = source, FileName = filename };
         }
         catch (Exception ex)
         {
             Logger.Log(ex.ToString());
+            return null;
         }
     }
 
     /// <summary>
     /// Try and guess the namespace based on the path of the .oraudt file. Nasty.
     /// </summary>
-    private string GuessNamespace(GeneratorExecutionContext context, AdditionalText file)
+    private string GuessNamespace(string assemblyName, AdditionalText file)
     {
         // Start with the full path of the additional file and trim off the filename.
         var path = Path.GetDirectoryName(file.Path);
 
         // See if that is somewhere under our assembly. If the project is using
         // normal C# namespaces this should work.
-        var asmName = context.Compilation?.Assembly?.Name;
 
-        if (asmName != null && path.Contains(asmName))
+        if (assemblyName != null && path.Contains(assemblyName))
         {
-            var idx = path.LastIndexOf(asmName);
+            var idx = path.LastIndexOf(assemblyName);
             path = path.Remove(0, idx);
         }
 
@@ -135,7 +176,7 @@ public class OracleUdtGenerator : ISourceGenerator
         return path;
     }
 
-    private string GenerateSourceText(GeneratorExecutionContext context, TargetClassSpecification spec, string ns)
+    private string GenerateSourceText(TargetClassSpecification spec, string ns)
     {
         var sb = new IndentingStringBuilder();
         sb.AppendLines(
