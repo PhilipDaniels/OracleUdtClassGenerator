@@ -202,26 +202,19 @@ The generated code can be seen under the `Analyzers` node in Visual Studio.
 **n.b.** Visual Studio can be temperamental about showing these files.
 Sometimes it is necessary to close and reopen Visual Studio.
 
-If all goes well you will also have a log file that looks something like this:
+# Errors and Diagnostics
 
-```cs
-/*
-DateTime.UtcNow: 2022-01-01T22:33:03.5397481Z
+The generator writes some diagnostics to the MS Build output stream. You will have to
+enable 'Detailed' output level in Tools -> Options to see them if all is working as expected:
 
-Found file C:\repos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\ArticleMaster.oraudt
-  Found spec for ArticleMasterRecord with 17 fields
-  Generated file ArticleMasterRecord.g.cs in namespace OracleUdtClassGenerator.ConsoleTestHarness
-Found file C:\repos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\MyClass.oraudt
-  Found spec for MyClass with 5 fields
-  Generated file MyClass.g.cs in namespace MyNamespace
-Found file C:\repos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\SubFolder\ArticleMaster2.oraudt
-  Found spec for ArticleMasterRecord2 with 17 fields
-  Generated file ArticleMasterRecord2.g.cs in namespace OracleUdtClassGenerator.ConsoleTestHarness.SubFolder
-Found file C:\repos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\Person.oraudt
-  Found spec for PersonRecord with 3 fields
-  Generated file PersonRecord.g.cs in namespace People
-*/
+```text
+1>    info ORAUDT01: Found file C:\myrepos\OracleUdtClassGenerator\OracleUdtClassGenerator.ConsoleTestHarness\Person.oraudt
+1>    info ORAUDT02: Found spec for PersonRecord with 3 fields
+1>    info ORAUDT06: Generated file PersonRecord.g.cs in namespace People
 ```
+
+Output can also be generated at WARNING or ERROR level in the case of mistakes in
+your .oraudt file. Errors will stop the build.
 
 # Further Reading
 
@@ -234,3 +227,11 @@ I have another NuGet package available called
 which can help with calling procs with UDTs, for example it will create
 `OracleParameters` correctly for you. It is also described in an
 [article on my blog](https://www.philipdaniels.com/blog/2021/oracle-from-csharp/).
+
+[Article in the Roslyn repository](https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md)
+about incremental source generators.
+
+[Andrew Lock's Article'](https://andrewlock.net/creating-a-source-generator-part-1-creating-an-incremental-source-generator/)
+about incremental source generators.
+
+[The Source Generators Cookbook](https://github.com/dotnet/roslyn/blob/main/docs/features/source-generators.cookbook.md)
