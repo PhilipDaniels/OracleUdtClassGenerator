@@ -26,7 +26,7 @@
   <ItemGroup>
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="3.21.4" />
 	<!-- Must install as a NuGet package due to the way packing works. -->
-    <PackageReference Include="OracleUdtClassGenerator" Version="1.1.0-gbc4502ab10" />
+    <PackageReference Include="OracleUdtClassGenerator" Version="1.1.0-g152e2711f5" />
   </ItemGroup>
 
 </Project>
