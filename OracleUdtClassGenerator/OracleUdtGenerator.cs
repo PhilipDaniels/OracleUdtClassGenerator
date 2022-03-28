@@ -103,7 +103,6 @@ public class OracleUdtGenerator : IIncrementalGenerator
             }
 
             var source = GenerateSourceText(spec, ns);
-            throw new ArgumentOutOfRangeException("HHHHHH");
             var filename = $"{spec.ClassName}.g.cs";
             if (!string.IsNullOrWhiteSpace(spec.FileName))
             {
