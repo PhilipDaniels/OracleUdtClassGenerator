@@ -2,7 +2,7 @@
 
 namespace OracleUdtClassGenerator;
 
-public class FileAndContents
+public struct FileAndContents
 {
     public string AssemblyName { get; set; }
     public AdditionalText AdditionalText { get; set; }

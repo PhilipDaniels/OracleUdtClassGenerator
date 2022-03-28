@@ -70,7 +70,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
                 {
                     Logger.Log($"  Found spec for {spec.ClassName} with {spec.Fields.Count} fields");
                     var generatedFileContents = CreateSourceText(assemblyName, additional, spec);
-                    if (generatedFileContents != null)
+                    if (!string.IsNullOrWhiteSpace(generatedFileContents.Contents))
                     {
                         results.Add(generatedFileContents);
                     }
@@ -113,7 +113,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
         catch (Exception ex)
         {
             Logger.Log(ex.ToString());
-            return null;
+            return new GeneratedFile();
         }
     }
 
