@@ -8,18 +8,6 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace OracleUdtClassGenerator;
 
-public class FileAndContents
-{
-    public AdditionalText AdditionalText { get; set; }
-    public string Contents { get; set; }
-}
-
-public class GeneratedFile
-{
-    public string FileName { get; set; } 
-    public string Contents { get; set; }
-}
-
 [Generator(LanguageNames.CSharp)]
 public class OracleUdtGenerator : IIncrementalGenerator
 {
@@ -27,24 +15,38 @@ public class OracleUdtGenerator : IIncrementalGenerator
     {
         // nb. See https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md#caching
 
-        IncrementalValueProvider<string> assemblyName;
-        IncrementalValuesProvider<AdditionalText> texts;
-        IncrementalValuesProvider<(AdditionalText Left, string Right)> textsAndAssembly;
+        //IncrementalValueProvider<string> assemblyName;
+        //IncrementalValuesProvider<AdditionalText> texts;
+        //IncrementalValuesProvider<(AdditionalText Left, string Right)> textsAndAssembly;
+        var assemblyName = context.CompilationProvider.Select(static (c, _) => c.AssemblyName);
+        var texts = context.AdditionalTextsProvider.Where(static file => file.Path.EndsWith(".oraudt", StringComparison.OrdinalIgnoreCase));
+        var textsAndAssembly = texts.Combine(assemblyName);
 
-        try
+        var combined = textsAndAssembly.Select((file, token) =>
         {
-            assemblyName = context.CompilationProvider.Select(static (c, _) => c.AssemblyName);
-            texts = context.AdditionalTextsProvider.Where(static file => file.Path.EndsWith(".oraudt", StringComparison.OrdinalIgnoreCase));
-            textsAndAssembly = texts.Combine(assemblyName);
-        }
-        catch (Exception ex)
-        {
-            Logger.Log(ex.ToString());
-        }
+            var sourceContents = file.Left.GetText(token)!.ToString();
+            return new FileAndContents
+            {
+                AssemblyName = file.Right,
+                AdditionalText = file.Left,
+                SourceContents = sourceContents,
+            };
+        });
 
+        var generatedFiles = combined.SelectMany<FileAndContents, GeneratedFile>((input, token) =>
+        {
+            return ProcessOraUdtFile(input.AssemblyName, input.AdditionalText, input.SourceContents);
+        });
+
+        context.RegisterSourceOutput(generatedFiles, (spc, generatedFile) =>
+        {
+            var sourceText = SourceText.From(generatedFile.Contents, Encoding.UTF8);
+            spc.AddSource(generatedFile.FileName, sourceText);
+        });
+
+        /*
         context.RegisterSourceOutput(textsAndAssembly, (spc, pair) =>
         {
-
             try
             {
                 var text = pair.Left;
@@ -71,6 +73,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
                 Logger.WriteLogsToFile(spc);
             }
         });
+        */
 
         /*
         // Read the contents of each additional file.
@@ -112,24 +115,30 @@ public class OracleUdtGenerator : IIncrementalGenerator
         {
             Logger.Log($"Found file {additional.Path}");
 
-            var targetSpecs = Grammar.ParseTargetSpecs(contents);
-            foreach (var spec in targetSpecs)
+            if (string.IsNullOrWhiteSpace(contents))
             {
-                Logger.Log($"  Found spec for {spec.ClassName} with {spec.Fields.Count} fields");
-                var generatedFileContents = CreateSourceText(assemblyName, additional, spec);
-                if (generatedFileContents != null)
+                Logger.Log($"  File {additional.Path} is blank");
+            }
+            else
+            {
+                var targetSpecs = Grammar.ParseTargetSpecs(contents);
+                foreach (var spec in targetSpecs)
                 {
-                    results.Add(generatedFileContents);
+                    Logger.Log($"  Found spec for {spec.ClassName} with {spec.Fields.Count} fields");
+                    var generatedFileContents = CreateSourceText(assemblyName, additional, spec);
+                    if (generatedFileContents != null)
+                    {
+                        results.Add(generatedFileContents);
+                    }
                 }
             }
-
-            return results;
         }
         catch (Exception ex)
         {
             Logger.Log(ex.ToString());
-            return Enumerable.Empty<GeneratedFile>();
         }
+
+        return results;
     }
 
     private GeneratedFile CreateSourceText(string assemblyName, AdditionalText file, TargetClassSpecification spec)
