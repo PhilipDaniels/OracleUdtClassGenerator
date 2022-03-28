@@ -27,12 +27,24 @@ public class OracleUdtGenerator : IIncrementalGenerator
     {
         // nb. See https://github.com/dotnet/roslyn/blob/main/docs/features/incremental-generators.md#caching
 
-        var assemblyName = context.CompilationProvider.Select(static (c, _) => c.AssemblyName);
-        var texts = context.AdditionalTextsProvider.Where(static file => file.Path.EndsWith(".oraudt", StringComparison.OrdinalIgnoreCase));
-        var textsAndAssembly = texts.Combine(assemblyName);
+        IncrementalValueProvider<string> assemblyName;
+        IncrementalValuesProvider<AdditionalText> texts;
+        IncrementalValuesProvider<(AdditionalText Left, string Right)> textsAndAssembly;
+
+        try
+        {
+            assemblyName = context.CompilationProvider.Select(static (c, _) => c.AssemblyName);
+            texts = context.AdditionalTextsProvider.Where(static file => file.Path.EndsWith(".oraudt", StringComparison.OrdinalIgnoreCase));
+            textsAndAssembly = texts.Combine(assemblyName);
+        }
+        catch (Exception ex)
+        {
+            Logger.Log(ex.ToString());
+        }
 
         context.RegisterSourceOutput(textsAndAssembly, (spc, pair) =>
         {
+
             try
             {
                 var text = pair.Left;
