@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,63 +29,68 @@ public class OracleUdtGenerator : IIncrementalGenerator
             };
         });
 
-        var diagnostics = new List<Diagnostic>();
-
-        var generatedFiles = combined.SelectMany((input, token) =>
+        var processedFiles = combined.Select((input, token) =>
         {
-            return ProcessOraUdtFile(diagnostics, input.AssemblyName, input.AdditionalText, input.SourceContents);
+            return ProcessOraUdtFile(input.AssemblyName, input.AdditionalText, input.SourceContents);
         });
 
-        context.RegisterSourceOutput(generatedFiles, static (spc, generatedFile) =>
+        context.RegisterSourceOutput(processedFiles, static (spc, processedFile) =>
         {
-            var sourceText = SourceText.From(generatedFile.Contents, Encoding.UTF8);
-            spc.AddSource(generatedFile.FileName, sourceText);
-        });
-
-        context.RegisterSourceOutput(assemblyName, (spc, _) =>
-        {
-            foreach (var diag in diagnostics)
+            foreach (var diag in processedFile.Diagnostics)
             {
                 spc.ReportDiagnostic(diag);
+            }
+
+            foreach (var generatedFile in processedFile.GeneratedFiles)
+            {
+                if (!string.IsNullOrWhiteSpace(generatedFile.SourceCode))
+                {
+                    var sourceText = SourceText.From(generatedFile.SourceCode, Encoding.UTF8);
+                    spc.AddSource(generatedFile.FileName, sourceText);
+                }
+
+                foreach (var diag in generatedFile.Diagnostics)
+                {
+                    spc.ReportDiagnostic(diag);
+                }
             }
         });
     }
 
-    private static IEnumerable<GeneratedFile> ProcessOraUdtFile(List<Diagnostic> diagnostics, string assemblyName, AdditionalText additional, string contents)
+    private static ProcessedOraUdtFile ProcessOraUdtFile(string assemblyName, AdditionalText additional, string contents)
     {
-        var results = new List<GeneratedFile>();
+        var result = new ProcessedOraUdtFile();
 
         try
         {
-            diagnostics.Add(Diagnostics.MakeFoundFileDiagnostic(additional.Path));
+            result.Diagnostics.Add(Diagnostics.MakeFoundFileDiagnostic(additional.Path));
 
             if (string.IsNullOrWhiteSpace(contents))
             {
-                diagnostics.Add(Diagnostics.MakeEmptyFileDiagnostic(additional.Path));
+                result.Diagnostics.Add(Diagnostics.MakeEmptyFileDiagnostic(additional.Path));
             }
             else
             {
                 var targetSpecs = Grammar.ParseTargetSpecs(contents);
+
                 foreach (var spec in targetSpecs)
                 {
-                    diagnostics.Add(Diagnostics.MakeFoundSpecDiagnostic(spec.ClassName, spec.Fields.Count));
-                    var generatedFileContents = CreateSourceText(diagnostics, assemblyName, additional, spec);
-                    if (!string.IsNullOrWhiteSpace(generatedFileContents.Contents))
-                    {
-                        results.Add(generatedFileContents);
-                    }
+                    var generatedFile = new GeneratedFile();
+                    generatedFile.Diagnostics.Add(Diagnostics.MakeFoundSpecDiagnostic(spec.ClassName, spec.Fields.Count));
+                    CreateSourceText(generatedFile, assemblyName, additional, spec);
+                    result.GeneratedFiles.Add(generatedFile);
                 }
             }
         }
         catch (Exception ex)
         {
-            diagnostics.Add(Diagnostics.MakeExceptionOccurredDiagnostic(ex));
+            result.Diagnostics.Add(Diagnostics.MakeExceptionOccurredDiagnostic(ex));
         }
 
-        return results;
+        return result;
     }
 
-    private static GeneratedFile CreateSourceText(List<Diagnostic> diagnostics, string assemblyName, AdditionalText file, TargetClassSpecification spec)
+    private static void CreateSourceText(GeneratedFile generatedFile, string assemblyName, AdditionalText file, TargetClassSpecification spec)
     {
         try
         {
@@ -99,23 +103,21 @@ public class OracleUdtGenerator : IIncrementalGenerator
             catch
             {
                 ns = spec.Namespace;
-                diagnostics.Add(Diagnostics.MakeCouldNotDetermineNamespaceDiagnostic(ns));
+                generatedFile.Diagnostics.Add(Diagnostics.MakeCouldNotDetermineNamespaceDiagnostic(ns));
             }
 
-            var source = GenerateSourceText(spec, ns);
-            var filename = $"{spec.ClassName}.g.cs";
+            generatedFile.SourceCode = GenerateSourceText(spec, ns);
+
+            generatedFile.FileName = $"{spec.ClassName}.g.cs";
             if (!string.IsNullOrWhiteSpace(spec.FileName))
             {
-                filename = spec.FileName.Trim();
+                generatedFile.FileName = spec.FileName.Trim();
             }
-            diagnostics.Add(Diagnostics.MakeGeneratedFileDiagnostic(filename, ns));
-
-            return new GeneratedFile {  Contents = source, FileName = filename };
+            generatedFile.Diagnostics.Add(Diagnostics.MakeGeneratedFileDiagnostic(generatedFile.FileName, ns));
         }
         catch (Exception ex)
         {
-            diagnostics.Add(Diagnostics.MakeExceptionOccurredDiagnostic(ex));
-            return new GeneratedFile();
+            generatedFile.Diagnostics.Add(Diagnostics.MakeExceptionOccurredDiagnostic(ex));
         }
     }
 
@@ -129,7 +131,6 @@ public class OracleUdtGenerator : IIncrementalGenerator
 
         // See if that is somewhere under our assembly. If the project is using
         // normal C# namespaces this should work.
-
         if (assemblyName != null && path.Contains(assemblyName))
         {
             var idx = path.LastIndexOf(assemblyName);

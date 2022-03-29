@@ -2,3 +2,8 @@
     Collection PersonArray MYSCHEMA.tblPerson
     Namespace People
     Fields [System.Int32 Age,FirstName,LastName]
+
+class ManagerRecord MYSCHEMA.objManager
+    Collection ManagerArray MYSCHEMA.tblManager
+    Namespace People
+    Fields [System.Int32 Age,FirstName,LastName, System.Int32 NumReports, ExecutiveLevel]
