@@ -15,6 +15,7 @@
     <PackageIcon></PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
 	<PackageReleaseNotes>
+    2022-03-29 Convert to incremental generation.
 		2022-01-12 Allow FileName and CollectionName to be specified
 		2022-01-02 Initial release
 	</PackageReleaseNotes>
