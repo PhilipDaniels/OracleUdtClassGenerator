@@ -52,5 +52,10 @@
     <Message Importance="high" Text="Copying $(OutputPath)..\$(PackageId).$(PackageVersion).nupkg to $(LocalNuGetDir)" />
     <Copy SourceFiles="$(OutputPath)..\$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(LocalNuGetDir)" OverwriteReadOnlyFiles="true" />
   </Target>
+
+  <ItemGroup>
+    <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
   
 </Project>

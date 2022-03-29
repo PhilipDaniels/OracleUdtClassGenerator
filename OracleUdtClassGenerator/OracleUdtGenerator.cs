@@ -29,7 +29,7 @@ public class OracleUdtGenerator : IIncrementalGenerator
             };
         });
 
-        var processedFiles = combined.Select((input, token) =>
+        var processedFiles = combined.Select(static (input, token) =>
         {
             return ProcessOraUdtFile(input.AssemblyName, input.AdditionalText, input.SourceContents);
         });
