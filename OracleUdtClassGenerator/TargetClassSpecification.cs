@@ -2,7 +2,7 @@
 
 namespace OracleUdtClassGenerator;
 
-public struct TargetClassSpecification
+public class TargetClassSpecification
 {
     public string FileName { get; set; }
     public string Namespace { get; set; }
@@ -15,7 +15,7 @@ public struct TargetClassSpecification
     public List<FieldSpecification> Fields { get; set; } = new List<FieldSpecification>();
 }
 
-public struct FieldSpecification
+public class FieldSpecification
 {
     public string PropertyName { get; set; }
     public string DotNetDataTypeName { get; set; }
